@@ -1,4 +1,4 @@
-package Cliente;
+package Util;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Cliente {
+public class Cliente{
 
     public static void main(String[] args) {
         try {

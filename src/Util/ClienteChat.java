@@ -1,5 +1,6 @@
 package Util;
 
+import javax.swing.*;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,7 +10,12 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-public class Cliente{
+public class ClienteChat {
+
+    private JTextField textField1;
+    private JButton button1;
+    private JTextArea textArea1;
+    private JScrollBar scrollBar1;
 
     public static void main(String[] args) {
         try {

@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+import Util.ClienteChat; // Importa la clase Cliente desde su paquete
 
 public class Log {
     private JFrame frame; // JFrame para contener los componentes
@@ -51,6 +52,13 @@ public class Log {
                         } else {
                             JOptionPane.showMessageDialog(frame, "¡Enhorabuena, acertaste!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
                            // break;
+
+
+                            // Iniciar el cliente
+                            ClienteChat clienteChat = new ClienteChat();
+                            clienteChat.main(null);
+                            // Cerrar el log
+                            System.exit(0);
                         }
 
 

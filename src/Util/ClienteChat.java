@@ -1,12 +1,9 @@
 package Util;
 
-
 import javax.swing.*;
 import java.awt.*;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -19,12 +16,16 @@ public class ClienteChat {
     private JScrollBar scrollBar1;
 
     public static void main(String[] args) {
-        // Llama al método para crear la interfaz gráfica
-        crearInterfazGrafica();
+        if (args.length > 0) {
+            // Llama al método para crear la interfaz gráfica, pasando el primer argumento como nombre
+            crearInterfazGrafica(args[0]);
+        } else {
+            System.out.println("Debe proporcionar un argumento para el nombre del cliente.");
+        }
     }
 
     // Método para crear la interfaz gráfica del cliente
-    private static void crearInterfazGrafica() {
+    private static void crearInterfazGrafica(String nombre) {
         JFrame frame = new JFrame("Cliente Chat");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Cierra la aplicación al cerrar la ventana
 
@@ -45,25 +46,13 @@ public class ClienteChat {
                 Socket sCliente = new Socket("127.0.0.1", 6001);
                 System.out.println("Conectado");
 
-                // Configura los flujos de entrada y salida para comunicarse con el servidor
+                // Configura los flujos de salida para enviar datos al servidor
                 OutputStream outaux = sCliente.getOutputStream();
                 DataOutputStream flujo_salida = new DataOutputStream(outaux);
 
-                // Envía el nombre del archivo al servidor
-                String nombre = textField.getText();
-                flujo_salida.writeUTF(nombre);
-
-                // Recibe y muestra los mensajes del servidor
-                InputStream inaux = sCliente.getInputStream();
-                DataInputStream flujo_entrada = new DataInputStream(inaux);
-                int codigo = flujo_entrada.readInt();
-                if (codigo == 200) {
-                    String linea;
-                    while ((linea = flujo_entrada.readUTF()) != null)
-                        System.out.println(linea);
-                } else {
-                    System.out.println("El fichero no existe");
-                }
+                // Envía el nombre del cliente y el texto ingresado al servidor
+                String texto = nombre + ": " + textField.getText();
+                flujo_salida.writeUTF(texto);
 
                 // Cierra la conexión con el servidor
                 sCliente.close();
@@ -71,7 +60,7 @@ public class ClienteChat {
             } catch (UnknownHostException ex) {
                 ex.printStackTrace();
             } catch (IOException ex) {
-                System.out.println("Final del fichero");
+                System.out.println("Error al enviar mensaje al servidor.");
             }
         });
         panel.add(button, BorderLayout.EAST);

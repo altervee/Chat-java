@@ -13,7 +13,6 @@ import java.util.ArrayList;
 
 public class HiloManejador implements Runnable {
     private Socket cliente;
-    private int numeroAdivinar;
     public  static ArrayList<String> listaNombres = new ArrayList<>();
     public HiloManejador(Socket cliente) {
         this.cliente = cliente;
@@ -28,16 +27,22 @@ public class HiloManejador implements Runnable {
             DataOutputStream flujoSalida = new DataOutputStream(out);
 
             while (true) {
-                String intento = flujoEntrada.readUTF();
+                //String intento = flujoEntrada.readUTF();
+                String mensajeCliente = flujoEntrada.readUTF();
+                if (mensajeCliente.startsWith("[Log]")) {// tambien se puede comprobar mensajeCliente.contains("[Log]")
 
-                if (listaNombres.contains(intento)) {
 
-                    System.out.println("El intento está en la lista: " + listaNombres.contains(intento));
+                if (listaNombres.contains(mensajeCliente)) {
+
+                    System.out.println("El intento está en la lista: " + listaNombres.contains(mensajeCliente));
                     System.out.println(listaNombres.size());
                     flujoSalida.writeBoolean(false);
                 } else {
-                    listaNombres.add(intento);
+                    listaNombres.add(mensajeCliente);
                     flujoSalida.writeBoolean(true);
+
+                }
+                } else {
 
                 }
             }

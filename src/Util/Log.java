@@ -44,7 +44,7 @@ public class Log {
 
                         System.out.println("Adivina el número (entre 1 y 6): ");
                         String textoIngresado = textField.getText();
-                        flujoSalida.writeUTF(textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
+                        flujoSalida.writeUTF("[Log]"+textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
                         boolean respuesta = flujoEntrada.readBoolean(); // RECIBIR DEL SERVIDOR
 
                         if (!respuesta) {
@@ -55,16 +55,18 @@ public class Log {
 
 
                             // Iniciar el cliente
+
+                            // Iniciar el cliente
                             ClienteChat clienteChat = new ClienteChat();
-                            clienteChat.main(null);
+                            ClienteChat.main(new String[]{textoIngresado}); // Pasar el nombre como argumento al cliente
                             // Cerrar el log
-                            System.exit(0);
+                            frame.dispose(); // Cierra la ventana del log
                         }
 
 
                     //cliente.close(); // EN EL CASO CORRECTO
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    System.out.println(ex);
                 }
             }
         });

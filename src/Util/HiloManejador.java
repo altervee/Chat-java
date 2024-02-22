@@ -25,7 +25,7 @@ public class HiloManejador implements Runnable {
 
             while (true) {
                 String mensajeCliente = flujoEntrada.readUTF();
-                if (mensajeCliente.startsWith("[Log]")) {
+                if (mensajeCliente.startsWith("[Log]")) {// diferenciancion del flujo tambien sirve containt
                     if (listaNombres.contains(mensajeCliente)) {
                         System.out.println("El intento está en la lista: " + listaNombres.contains(mensajeCliente));
                         System.out.println(listaNombres.size());
@@ -46,7 +46,7 @@ public class HiloManejador implements Runnable {
         }
     }
 
-    private void transmitirMensajeATodos(String mensaje) {
+    private void transmitirMensajeATodos(String mensaje) {// metodo para asignar mensajes
         for (Socket cliente : clientesConectados) {
             try {
                 DataOutputStream flujoSalidaCliente = new DataOutputStream(cliente.getOutputStream());
@@ -57,7 +57,7 @@ public class HiloManejador implements Runnable {
         }
     }
 
-    public static void agregarCliente(Socket cliente) {
+    public static void agregarCliente(Socket cliente) {// metodo para agregar nuevos usuarios
         clientesConectados.add(cliente);
     }
 }

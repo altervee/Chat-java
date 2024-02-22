@@ -21,7 +21,7 @@ public class ClienteChat {
 
     public static void main(String[] args) {
         ClienteChat chat = new ClienteChat();
-        chat.initialize("nombre"); // Aquí debes proporcionar el nombre
+        chat.initialize("nombre"); //
     }
 
     public void initialize(String nombre) {

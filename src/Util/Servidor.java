@@ -5,16 +5,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Servidor {
-    private static final int PUERTO = 6001;
 
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(PUERTO);
+            ServerSocket serverSocket = new ServerSocket(6001);
             System.out.println("Servidor activo");
 
             while (true) {
                 Socket clienteSocket = serverSocket.accept();
-                System.out.println("Nuevo cliente conectado: " + clienteSocket);
+                System.out.println("Nuevo cliente conectado: " + clienteSocket);// visualizzar los usuarios por terminal
 
                 HiloManejador.agregarCliente(clienteSocket);
 

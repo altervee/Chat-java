@@ -1,12 +1,11 @@
 package Util;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
-import Util.ClienteChat; // Importa la clase Cliente desde su paquete
 
 public class Log {
     private JFrame frame; // JFrame para contener los componentes
@@ -39,29 +38,20 @@ public class Log {
                     DataInputStream flujoEntrada = new DataInputStream(in);
                     OutputStream out = cliente.getOutputStream();
                     DataOutputStream flujoSalida = new DataOutputStream(out);
-                    Scanner scanner = new Scanner(System.in);
+                    String textoIngresado = textField.getText();
+                    flujoSalida.writeUTF("[Log]"+textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
+                    boolean respuesta = flujoEntrada.readBoolean(); // RECIBIR DEL SERVIDOR
 
+                    if (!respuesta) {
+                        JOptionPane.showMessageDialog(frame, "¡Ese nombre ya está en uso!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
 
-                        System.out.println("Adivina el número (entre 1 y 6): ");
-                        String textoIngresado = textField.getText();
-                        flujoSalida.writeUTF("[Log]"+textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
-                        boolean respuesta = flujoEntrada.readBoolean(); // RECIBIR DEL SERVIDOR
-
-                        if (!respuesta) {
-                            JOptionPane.showMessageDialog(frame, "¡Ese nombre ya está en uso!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(frame, "¡Enhorabuena, acertaste!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
-                           // break;
-
-
-                            // Iniciar el cliente
-
-                            // Iniciar el cliente
-                            ClienteChat clienteChat = new ClienteChat();
-                            ClienteChat.main(new String[]{textoIngresado}); // Pasar el nombre como argumento al cliente
-                            // Cerrar el log
-                            frame.dispose(); // Cierra la ventana del log
-                        }
+                        JOptionPane.showMessageDialog(frame, "¡Bienvenido " + textoIngresado + "!", "Mensaje", JOptionPane.INFORMATION_MESSAGE);
+                        ClienteChat clienteChat = new ClienteChat();
+                        clienteChat.initialize(textoIngresado); // Llamar al método initialize() del cliente
+                        //cliente.close();
+                        frame.dispose();
+                    }
 
 
                     //cliente.close(); // EN EL CASO CORRECTO

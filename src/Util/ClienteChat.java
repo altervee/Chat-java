@@ -2,71 +2,98 @@ package Util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
+
+
 
 public class ClienteChat {
 
+    private JFrame frame;
     private JTextField textField1;
     private JButton button1;
     private JTextArea textArea1;
     private JScrollBar scrollBar1;
 
+    private Socket cliente;
+
     public static void main(String[] args) {
-        if (args.length > 0) {
-            // Llama al método para crear la interfaz gráfica, pasando el primer argumento como nombre
-            crearInterfazGrafica(args[0]);
-        } else {
-            System.out.println("Debe proporcionar un argumento para el nombre del cliente.");
+        ClienteChat chat = new ClienteChat();
+        chat.initialize("nombre"); // Aquí debes proporcionar el nombre
+    }
+
+    public void initialize(String nombre) {
+        frame = new JFrame("Cliente Chat");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+
+        textArea1 = new JTextArea();
+        textArea1.setEditable(false);
+        textArea1.append("¡Bienvenido al chat, " + nombre + "!\n"); // Mensaje de bienvenida con el nombre proporcionado
+        scrollBar1 = new JScrollBar();
+        JScrollPane scrollPane = new JScrollPane(textArea1);
+        scrollPane.setVerticalScrollBar(scrollBar1);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
+
+        textField1 = new JTextField();
+        textField1.setPreferredSize(new Dimension(200, 30));
+
+        button1 = new JButton("Enviar");
+
+        button1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                synchronized (this) {
+
+                    try {
+                        Socket cliente = new Socket("localhost", 6001); // AQUÍ TAMBIÉN PUEDE IR LA IP
+                        InputStream in = cliente.getInputStream();
+                        DataInputStream flujoEntrada = new DataInputStream(in);
+                        OutputStream out = cliente.getOutputStream();
+                        DataOutputStream flujoSalida = new DataOutputStream(out);
+                        String textoIngresado = textField1.getText();
+                        flujoSalida.writeUTF(nombre+": "+textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
+                        String respuesta = flujoEntrada.readUTF(); // RECIBIR DEL SERVIDOR
+                        System.out.println(respuesta);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        JPanel inputPanel = new JPanel(new FlowLayout()); // JPanel para colocar los componentes de entrada
+        inputPanel.add(textField1);
+        inputPanel.add(button1);
+
+        mainPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        frame.add(mainPanel);
+        frame.pack();
+        frame.setVisible(true);
+
+        // Establecer conexión con el servidor y comenzar el hilo de recepción de mensajes
+        try {
+            cliente = new Socket("localhost", 6001);
+            Thread hiloRecepcion = new Thread(this::recibirMensajes);
+            hiloRecepcion.start();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    // Método para crear la interfaz gráfica del cliente
-    private static void crearInterfazGrafica(String nombre) {
-        JFrame frame = new JFrame("Cliente Chat");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Cierra la aplicación al cerrar la ventana
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JTextArea textArea = new JTextArea();
-        textArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        panel.add(scrollPane, BorderLayout.CENTER);
-
-        JTextField textField = new JTextField();
-        panel.add(textField, BorderLayout.SOUTH);
-
-        JButton button = new JButton("Enviar");
-        button.addActionListener(e -> {
-            try {
-                // Establece la conexión con el servidor
-                Socket sCliente = new Socket("127.0.0.1", 6001);
-                System.out.println("Conectado");
-
-                // Configura los flujos de salida para enviar datos al servidor
-                OutputStream outaux = sCliente.getOutputStream();
-                DataOutputStream flujo_salida = new DataOutputStream(outaux);
-
-                // Envía el nombre del cliente y el texto ingresado al servidor
-                String texto = nombre + ": " + textField.getText();
-                flujo_salida.writeUTF(texto);
-
-                // Cierra la conexión con el servidor
-                sCliente.close();
-
-            } catch (UnknownHostException ex) {
-                ex.printStackTrace();
-            } catch (IOException ex) {
-                System.out.println("Error al enviar mensaje al servidor.");
+    private void recibirMensajes() {
+        try {
+            DataInputStream flujoEntrada = new DataInputStream(cliente.getInputStream());
+            while (true) {
+                String mensajeRecibido = flujoEntrada.readUTF();
+                textArea1.append(mensajeRecibido + "\n"); // Mostrar el mensaje en el área de texto
             }
-        });
-        panel.add(button, BorderLayout.EAST);
-
-        frame.add(panel);
-        frame.pack();
-        frame.setVisible(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

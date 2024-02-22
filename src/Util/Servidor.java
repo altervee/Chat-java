@@ -1,30 +1,26 @@
 package Util;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Servidor {
-    private static List<String> nombresRegistrados = new ArrayList<>();
+    private static final int PUERTO = 6001;
 
     public static void main(String[] args) {
-        int puerto = 6001;
-        ServerSocket servidor = null;
-
         try {
-            servidor = new ServerSocket(puerto);
-            System.out.println("Escuchando en el puerto " + puerto);
+            ServerSocket serverSocket = new ServerSocket(PUERTO);
+            System.out.println("Servidor activo");
 
             while (true) {
-                Socket cliente = servidor.accept();
-                System.out.println("Atendiendo petición del cliente");
+                Socket clienteSocket = serverSocket.accept();
+                System.out.println("Nuevo cliente conectado: " + clienteSocket);
 
-                // Iniciar un hilo para manejar la comunicación con el cliente
-                Thread t = new Thread(new HiloManejador(cliente));
-                t.start();
+                HiloManejador.agregarCliente(clienteSocket);
+
+                Thread hilo = new Thread(new HiloManejador(clienteSocket));
+                hilo.start();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

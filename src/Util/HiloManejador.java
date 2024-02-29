@@ -1,7 +1,12 @@
 package Util;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class HiloManejador implements Runnable {
@@ -10,6 +15,7 @@ public class HiloManejador implements Runnable {
     private static List<String> listaNombres = new ArrayList<>();
     private static List<String> mensajes = new ArrayList<>();
     private DataOutputStream flujoSalida;
+    private static HashMap<String, Thread> hilosUsuarios = new HashMap<>(); // Mapa para mantener los nombres de usuario y los hilos correspondientes
 
     public HiloManejador(Socket cliente) {
         this.cliente = cliente;
@@ -30,8 +36,9 @@ public class HiloManejador implements Runnable {
                     for (String mensaje : mensajes) {
                         flujoSalida.writeUTF(mensaje);
                     }
-                } else
-                if (mensajeCliente.startsWith("[Log]")) {// diferenciancion del flujo tambien sirve containt
+                    // Enviar los nombres de usuario al cliente
+                    enviarNombresUsuarios();
+                } else if (mensajeCliente.startsWith("[Log]")) {
                     if (listaNombres.contains(mensajeCliente)) {
                         System.out.println("El intento está en la lista: " + listaNombres.contains(mensajeCliente));
                         System.out.println(listaNombres.size());
@@ -39,6 +46,8 @@ public class HiloManejador implements Runnable {
                     } else {
                         listaNombres.add(mensajeCliente);
                         flujoSalida.writeBoolean(true);
+                        // Agregar el nombre de usuario y su hilo correspondiente al mapa
+                        hilosUsuarios.put(mensajeCliente, Thread.currentThread());
                     }
                 } else {
                     // Agregar mensaje a la lista de mensajes
@@ -52,7 +61,7 @@ public class HiloManejador implements Runnable {
         }
     }
 
-    private void transmitirMensajeATodos(String mensaje) {// metodo para asignar mensajes
+    private void transmitirMensajeATodos(String mensaje) {
         for (Socket cliente : clientesConectados) {
             try {
                 DataOutputStream flujoSalidaCliente = new DataOutputStream(cliente.getOutputStream());
@@ -63,7 +72,22 @@ public class HiloManejador implements Runnable {
         }
     }
 
-    public static void agregarCliente(Socket cliente) {// metodo para agregar nuevos usuarios
+    private void enviarNombresUsuarios() throws IOException {
+        StringBuilder nombres = new StringBuilder();
+        for (String nombre : hilosUsuarios.keySet()) {
+            Thread hiloUsuario = hilosUsuarios.get(nombre);
+            if (hiloUsuario.isAlive()) {
+                nombres.append(nombre).append(",");
+            }
+        }
+        // Eliminar la última coma
+        if (nombres.length() > 0) {
+            nombres.deleteCharAt(nombres.length() - 1);
+        }
+        flujoSalida.writeUTF(nombres.toString());
+    }
+
+    public static void agregarCliente(Socket cliente) {
         clientesConectados.add(cliente);
     }
 }

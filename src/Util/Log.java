@@ -33,7 +33,7 @@ public class Log {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Socket cliente = new Socket("localhost", 6001); // AQUÍ TAMBIÉN PUEDE IR LA IP
+                    Socket cliente = new Socket("localhost", 6002); // AQUÍ TAMBIÉN PUEDE IR LA IP
                     InputStream in = cliente.getInputStream();
                     DataInputStream flujoEntrada = new DataInputStream(in);
                     OutputStream out = cliente.getOutputStream();

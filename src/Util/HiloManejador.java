@@ -25,6 +25,12 @@ public class HiloManejador implements Runnable {
 
             while (true) {
                 String mensajeCliente = flujoEntrada.readUTF();
+                if (mensajeCliente.equals("[SolicitarMensajes]")) {
+                    // Enviar todos los mensajes almacenados al cliente
+                    for (String mensaje : mensajes) {
+                        flujoSalida.writeUTF(mensaje);
+                    }
+                } else
                 if (mensajeCliente.startsWith("[Log]")) {// diferenciancion del flujo tambien sirve containt
                     if (listaNombres.contains(mensajeCliente)) {
                         System.out.println("El intento está en la lista: " + listaNombres.contains(mensajeCliente));

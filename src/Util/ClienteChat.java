@@ -18,6 +18,7 @@ public class ClienteChat {
     private JScrollBar scrollBar1;
 
     private Socket cliente;
+    private boolean solicitudEnviada = false; // Bandera para controlar si la solicitud de mensajes ya se ha enviado
 
     public static void main(String[] args) {
         ClienteChat chat = new ClienteChat();
@@ -25,7 +26,7 @@ public class ClienteChat {
     }
 
     public void initialize(String nombre) {
-        frame = new JFrame("Cliente Chat");
+        frame = new JFrame(nombre);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -49,7 +50,14 @@ public class ClienteChat {
                 synchronized (this) {
 
                     try {
-                        Socket cliente = new Socket("localhost", 6001); // AQUÍ TAMBIÉN PUEDE IR LA IP
+                        if (!solicitudEnviada) {
+                            // Enviar solicitud al servidor para obtener los mensajes almacenados
+                            DataOutputStream flujoSalida = new DataOutputStream(cliente.getOutputStream());
+                            flujoSalida.writeUTF("[SolicitarMensajes]");
+                            solicitudEnviada = true; // Marcar que la solicitud se ha enviado
+                        }
+
+                        Socket cliente = new Socket("localhost", 6002); // AQUÍ TAMBIÉN PUEDE IR LA IP
                         InputStream in = cliente.getInputStream();
                         DataInputStream flujoEntrada = new DataInputStream(in);
                         OutputStream out = cliente.getOutputStream();
@@ -58,6 +66,7 @@ public class ClienteChat {
                         flujoSalida.writeUTF(nombre+": "+textoIngresado); // Enviar LO QUE INTRODUCE AL SERVIDOR
                         String respuesta = flujoEntrada.readUTF(); // RECIBIR DEL SERVIDOR
                         System.out.println(respuesta);
+                        textField1.setText("");// limpiar el cuadro de texto
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -77,7 +86,7 @@ public class ClienteChat {
 
         // Establecer conexión con el servidor y comenzar el hilo de recepción de mensajes
         try {
-            cliente = new Socket("localhost", 6001);
+            cliente = new Socket("localhost", 6002);
             Thread hiloRecepcion = new Thread(this::recibirMensajes);
             hiloRecepcion.start();
         } catch (IOException e) {
@@ -94,6 +103,12 @@ public class ClienteChat {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            try {
+                frame.dispose();
+                cliente.close(); // Se intenta cerrar la conexión en caso de excepción
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }

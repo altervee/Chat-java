@@ -8,7 +8,7 @@ public class Servidor {
 
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(6001);
+            ServerSocket serverSocket = new ServerSocket(6002);
             System.out.println("Servidor activo");
 
             while (true) {
